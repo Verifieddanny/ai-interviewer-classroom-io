@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Interview Coach
 
-## Getting Started
+A voice-powered AI interview practice tool built with Next.js, Google Gemini, and browser-native speech APIs. The AI conducts technical interviews — it speaks questions aloud, listens to your responses, and follows up in real time.
 
-First, run the development server:
+## Course modules
+
+This project is built across three video modules. Each module has its own branch so you can follow along or jump to any point in the build.
+
+| Module |   Branch  | What's covered |
+|--------|-----------|----------------|
+| 1. Conversational UI canvas | [`module-1`](../../tree/module-1) | Project scaffolding, sidebar, listening view, idle view, phase-driven component architecture |
+| 2. Wiring voice streaming | [`module-2`](../../tree/module-2) | `useGeminiLive` hook, SpeechRecognition (STT), Gemini `generateContent` API, SpeechSynthesis (TTS), hybrid auto-listen / press-to-talk fallback |
+| 3. Deploying to Vercel | [`module-3`](../../tree/module-3) | Vercel deployment, environment variables, production considerations |
+| **Complete project** | [`main`](../../tree/main) | Final state with all modules combined |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[🎙️ SpeechRecognition] -->|voice → text| B[🤖 Gemini generateContent]
+    B -->|text → AI reply| C[🔊 SpeechSynthesis]
+    C -->|AI finishes speaking| A
+```
+
+No WebSocket streaming, no audio buffers — three browser/API building blocks in a loop.
+
+## Getting started
+
+1. Clone the repo and install dependencies:
+
+```bash
+git clone https://github.com/Verifieddanny/ai-interviewer-classroom-io.git
+cd ai-interviewer-classroom-io
+npm install
+```
+
+2. Create a `.env` file with your Gemini API key:
+
+```
+NEXT_PUBLIC_GEMINI_API_KEY=your_key_here
+```
+
+Get a key from [Google AI Studio](https://aistudio.google.com/apikey).
+
+3. Run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000), enter your name and a job description, and start an interview session.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 16** — React framework
+- **Tailwind CSS v4** — Styling
+- **Google Gemini** — AI text generation (`generateContent` endpoint)
+- **Web Speech API** — Browser-native speech-to-text and text-to-speech
+- **Vercel** — Deployment
 
-## Learn More
+## Browser support
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Safari** — Full auto-listen support
+- **Chrome** — Full auto-listen support
+- **Arc / other Chromium** — Falls back to press-to-talk (spacebar or button) if auto-listen fails
