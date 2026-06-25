@@ -1,4 +1,3 @@
-"use main";
 "use client";
 
 import { useState } from "react";
@@ -6,42 +5,50 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import IdleView from "@/components/IdleView";
 import ListeningView from "@/components/ListeningView";
-
-export type AppState = "idle" | "listening";
+import { useGeminiLive } from "@/hooks/useGeminiLive";
 
 export default function Home() {
-  const [appState, setAppState] = useState<AppState>("idle");
   const [jobDescription, setJobDescription] = useState("");
+  const [candidateName, setCandidateName] = useState("");
 
-  const handleStartSession = () => {
-    if (appState === "idle") {
-      setAppState("listening");
-    }
-  };
-
-  const handleEndSession = () => {
-    setAppState("idle");
-  };
+  const {
+    phase,
+    isMuted,
+    audioLevel,
+    elapsedSeconds,
+    startSession,
+    endSession,
+    toggleMute,
+    startTalking,
+  } = useGeminiLive({ jobDescription, candidateName });
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#07090e]">
-      {/* Sidebar Navigation */}
-      <Sidebar 
-        appState={appState} 
-        jobDescription={jobDescription} 
-        setJobDescription={setJobDescription} 
-        onStartSession={handleStartSession}
+      <Sidebar
+        appState={phase}
+        jobDescription={jobDescription}
+        setJobDescription={setJobDescription}
+        candidateName={candidateName}
+        setCandidateName={setCandidateName}
+        onStartSession={startSession}
       />
 
-      {/* Main Content Pane */}
       <div className="flex flex-1 flex-col overflow-hidden bg-[#0d111a]">
-        <Header />
-        
+        <Header phase={phase} />
+
         <main className="flex flex-1 flex-col items-center justify-center p-6 relative">
-          {appState === "idle" ? (
+          {phase === "idle" ? (
             <IdleView />
           ) : (
-            <ListeningView onEndSession={handleEndSession} />
+            <ListeningView
+              phase={phase}
+              audioLevel={audioLevel}
+              elapsedSeconds={elapsedSeconds}
+              isMuted={isMuted}
+              onToggleMute={toggleMute}
+              onEndSession={endSession}
+              onStartTalking={startTalking}
+            />
           )}
         </main>
       </div>
